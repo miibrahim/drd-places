@@ -12,20 +12,9 @@ import java.util.List;
 import fr.atecna.placesapplication.model.FourSquarePlace;
 
 public class FourSquarePlacesTask extends BaseAsyncTask<Object, List<FourSquarePlace>> {
-    @Override
-    protected List<FourSquarePlace> doInBackground(String... urls) {
-        try {
-            String jsonResult = getApi(urls[0]);
-            Log.d(getClass().getSimpleName(), "result: " + jsonResult);
-            List<FourSquarePlace> result = parseResult(jsonResult);
-            return result;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
-    private List<FourSquarePlace> parseResult(String jsonResult) throws JSONException {
+    @Override
+    protected List<FourSquarePlace> parseResult(String jsonResult) throws JSONException {
         Log.d(getClass().getSimpleName(), "parseResult");
         JSONObject jsonObject = new JSONObject(jsonResult);
         JSONArray resultsArr = jsonObject.getJSONObject("response").getJSONArray("venues");

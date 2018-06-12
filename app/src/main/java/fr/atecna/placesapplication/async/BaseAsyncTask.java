@@ -1,19 +1,42 @@
 package fr.atecna.placesapplication.async;
 
 import android.os.AsyncTask;
+import android.util.Log;
+
+import org.json.JSONException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.List;
+
+import fr.atecna.placesapplication.model.FourSquarePlace;
 
 public abstract class BaseAsyncTask<Progress, Result> extends AsyncTask<String, Progress, Result> {
-    OnTaskFinished<Result> onTaskFinishedObserver;
+  WeakReference<OnTaskFinished<Result>> onTaskFinishedObserverReference;
 
     public void setOnTaskFinishedObserver(OnTaskFinished<Result> onTaskFinishedObserver) {
-        this.onTaskFinishedObserver = onTaskFinishedObserver;
+        this.onTaskFinishedObserverReference = new WeakReference<>(onTaskFinishedObserver);
     }
+
+    @Override
+    protected Result doInBackground(String... urls) {
+        try {
+            Thread.sleep(5000);
+            String jsonResult = getApi(urls[0]);
+            Log.d(getClass().getSimpleName(), "result: " + jsonResult);
+            Result result = parseResult(jsonResult);
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    protected abstract Result parseResult(String jsonResult) throws JSONException;
 
     protected String getApi(String urlString) throws IOException {
         URL url = new URL(urlString);
@@ -38,7 +61,7 @@ public abstract class BaseAsyncTask<Progress, Result> extends AsyncTask<String, 
     @Override
     protected void onPostExecute(Result result) {
         super.onPostExecute(result);
-        if (onTaskFinishedObserver != null)
-            onTaskFinishedObserver.onTaskFinished(result);
+        if (onTaskFinishedObserverReference != null && onTaskFinishedObserverReference.get() != null)
+            onTaskFinishedObserverReference.get().onTaskFinished(result);
     }
 }
