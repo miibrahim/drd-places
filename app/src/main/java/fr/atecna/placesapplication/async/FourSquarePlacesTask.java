@@ -23,7 +23,9 @@ public class FourSquarePlacesTask extends BaseAsyncTask<Object, List<FourSquareP
         for (int i = 0; i < resultsArr.length(); i++) {
             JSONObject placeJson = resultsArr.getJSONObject(i);
             fourSquarePlaces.add(new FourSquarePlace(placeJson.getString("id")
-                    , placeJson.getString("name")));
+                    , placeJson.getString("name")
+                    , placeJson.getJSONObject( "location" ).getDouble( "lat" )
+                    , placeJson.getJSONObject( "location" ).getDouble( "lng" )));
         }
         return fourSquarePlaces;
     }

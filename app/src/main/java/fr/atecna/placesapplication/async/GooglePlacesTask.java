@@ -6,7 +6,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +23,9 @@ public class GooglePlacesTask extends BaseAsyncTask<Object, List<GooglePlace>> {
         for (int i = 0; i < resultsArr.length(); i++) {
             JSONObject placeJson = resultsArr.getJSONObject(i);
             googlePlaces.add(new GooglePlace(placeJson.getString("id")
-                    , placeJson.getString("name")));
+                    , placeJson.getString("name")
+                    , placeJson.getJSONObject("location").getDouble("lat")
+                    , placeJson.getJSONObject("location").getDouble( "lng" )));
         }
         return googlePlaces;
     }

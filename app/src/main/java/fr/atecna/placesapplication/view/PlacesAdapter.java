@@ -14,7 +14,18 @@ import fr.atecna.placesapplication.R;
 import fr.atecna.placesapplication.model.Place;
 
 public class PlacesAdapter extends RecyclerView.Adapter<PlacesAdapter.PlaceViewHolder> {
-    List<Place> places = new ArrayList<>();
+    public List<Place> places = new ArrayList<>();
+
+    public static class PlaceViewHolder extends RecyclerView.ViewHolder{
+//        TextView textViewId;
+        TextView textViewName;
+        public PlaceViewHolder(View itemView) {
+            super(itemView);
+//            textViewId = itemView.findViewById(R.id.textViewId);
+            textViewName = itemView.findViewById(R.id.textViewName);
+            textViewName = itemView.findViewById(R.id.textViewName);
+        }
+    }
 
     @NonNull
     @Override
@@ -25,7 +36,7 @@ public class PlacesAdapter extends RecyclerView.Adapter<PlacesAdapter.PlaceViewH
 
     @Override
     public void onBindViewHolder(@NonNull PlaceViewHolder holder, int position) {
-        holder.textViewId.setText(places.get(position).getId());
+//        holder.textViewId.setText(places.get(position).getId());
         holder.textViewName.setText(places.get(position).getName());
     }
 
@@ -37,15 +48,5 @@ public class PlacesAdapter extends RecyclerView.Adapter<PlacesAdapter.PlaceViewH
     @Override
     public int getItemCount() {
         return places.size();
-    }
-
-    public static class PlaceViewHolder extends RecyclerView.ViewHolder{
-        TextView textViewId;
-        TextView textViewName;
-        public PlaceViewHolder(View itemView) {
-            super(itemView);
-            textViewId = itemView.findViewById(R.id.textViewId);
-            textViewName = itemView.findViewById(R.id.textViewName);
-        }
     }
 }
