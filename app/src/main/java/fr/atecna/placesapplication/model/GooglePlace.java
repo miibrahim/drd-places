@@ -1,8 +1,8 @@
 package fr.atecna.placesapplication.model;
 
-public class GooglePlace extends  Place {
+import java.io.Serializable;
 
-
+public class GooglePlace extends  Place implements Serializable{
     public GooglePlace(String id, String name, double lat, double lng) {
         this.id = id;
         this.name = name;

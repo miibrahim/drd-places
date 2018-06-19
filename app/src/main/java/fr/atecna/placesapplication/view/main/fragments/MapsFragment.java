@@ -1,4 +1,4 @@
-package fr.atecna.placesapplication.view;
+package fr.atecna.placesapplication.view.main.fragments;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -23,10 +23,11 @@ import java.util.List;
 
 import fr.atecna.placesapplication.R;
 import fr.atecna.placesapplication.model.Place;
+import fr.atecna.placesapplication.view.main.MainActivity;
 
-public class MapsFragment extends Fragment implements OnMapReadyCallback {
-    List<Place> places;
+public class MapsFragment extends Fragment implements OnMapReadyCallback, PlacesPresenter.PresenterListener {
     GoogleMap map;
+    PlacesPresenter presenter;
 
     @Nullable
     @Override
@@ -41,7 +42,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById( R.id.mapsFragment );
         mapFragment.getMapAsync( this );
-        places = ((MainActivity)getActivity()).places;
+        presenter = new PlacesPresenter(getContext().getApplicationContext());
+        presenter.setPresenterListener(this);
+        presenter.initPlaces(((MainActivity)getActivity()).getPlaces());
     }
 
     public void onSaveInstanceState (Bundle state){
@@ -51,16 +54,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onResume() {
         super.onResume();
-        LocalBroadcastManager.getInstance( getContext() )
-                .registerReceiver( receiver, new IntentFilter(MainActivity.ACTION_GOOGLE_PLACES_RECEIVED ) );
-        LocalBroadcastManager.getInstance( getContext() ).registerReceiver( receiver
-                , new IntentFilter(MainActivity.ACTION_FOUR_SQUARE_PLACES_RECEIVED ));
+        presenter.registerReceiver();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(receiver);
+        presenter.unregisterReceiver();
     }
 
     public void onStop () {
@@ -68,9 +68,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public void addAllMarkers() {
+        if(map == null || presenter.getPlaces() == null)
+            return;
         map.clear();
-        for (int i=0; i<places.size(); i++){
-            Place place = places.get( i );
+        for (int i=0; i<presenter.getPlaces().size(); i++){
+            Place place = presenter.getPlaces().get( i );
             map.addMarker( new MarkerOptions()
                     .position( new LatLng( place.getLat(), place.getLng() ) ).title( place.name ) );
         }
@@ -82,21 +84,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         addAllMarkers();
     }
 
-    private void onReceivedBroadcast(Intent intent){
-        this.places = ((MainActivity)getActivity()).places;
-
-        if (MainActivity.ACTION_GOOGLE_PLACES_RECEIVED.equals( intent.getAction() )
-                &&  ((MainActivity)getActivity()).getGooglePlaces() != null)
-            addAllMarkers();
-        else if (MainActivity.ACTION_FOUR_SQUARE_PLACES_RECEIVED.equals( intent.getAction() )
-                &&  ((MainActivity)getActivity()).getFourSquarePlaces() != null)
-            addAllMarkers();
+    @Override
+    public void onPlacesUpdated(List<Place> places) {
+        addAllMarkers();
     }
-
-    BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            onReceivedBroadcast(intent);
-        }
-    };
 }

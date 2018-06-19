@@ -1,14 +1,9 @@
-package fr.atecna.placesapplication.view;
+package fr.atecna.placesapplication.view.main.fragments;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -16,11 +11,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import fr.atecna.placesapplication.R;
+import java.util.List;
 
-public class ListFragment extends Fragment {
+import fr.atecna.placesapplication.R;
+import fr.atecna.placesapplication.model.Place;
+import fr.atecna.placesapplication.view.PlacesAdapter;
+import fr.atecna.placesapplication.view.main.MainActivity;
+
+public class ListFragment extends Fragment implements PlacesPresenter.PresenterListener {
     RecyclerView recyclerView;
     PlacesAdapter placesAdapter;
+    PlacesPresenter presenter;
 
     @Nullable
     @Override
@@ -29,7 +30,6 @@ public class ListFragment extends Fragment {
 
         Button button = view.findViewById(R.id.button);
         button.setOnClickListener( new View.OnClickListener(){
-
             @Override
             public void onClick(View v) {
                 swapFragment();
@@ -45,11 +45,12 @@ public class ListFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated( view, savedInstanceState );
-
+        presenter = new PlacesPresenter(getContext().getApplicationContext());
+        presenter.setPresenterListener(this);
         recyclerView = view.findViewById(R.id.recyclerView);
         initRecyclerView();
 
-        placesAdapter.addPlaces(((MainActivity)getActivity()).places);
+        presenter.initPlaces(((MainActivity)getActivity()).getPlaces());
     }
 
     private void initRecyclerView() {
@@ -61,32 +62,17 @@ public class ListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        LocalBroadcastManager.getInstance( getContext() )
-                .registerReceiver( receiver, new IntentFilter(MainActivity.ACTION_GOOGLE_PLACES_RECEIVED ) );
-        LocalBroadcastManager.getInstance( getContext() ).registerReceiver( receiver
-                , new IntentFilter(MainActivity.ACTION_FOUR_SQUARE_PLACES_RECEIVED ));
+        presenter.registerReceiver();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        LocalBroadcastManager.getInstance( getContext() ).unregisterReceiver( receiver );
+        presenter.unregisterReceiver();
     }
 
-    private void onReceivedBroadcast(Intent intent){
-        if (MainActivity.ACTION_GOOGLE_PLACES_RECEIVED.equals( intent.getAction() )
-                &&  ((MainActivity)getActivity()).getGooglePlaces() != null)
-            placesAdapter.addPlaces( ((MainActivity)getActivity()).getGooglePlaces() );
-        else if (MainActivity.ACTION_FOUR_SQUARE_PLACES_RECEIVED.equals( intent.getAction() )
-                &&  ((MainActivity)getActivity()).getFourSquarePlaces() != null)
-            placesAdapter.addPlaces( ((MainActivity)getActivity()).getFourSquarePlaces() );
+    @Override
+    public void onPlacesUpdated(List<Place> places) {
+        placesAdapter.setPlaces(places);
     }
-
-    BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            onReceivedBroadcast(intent);
-        }
-    };
-
 }

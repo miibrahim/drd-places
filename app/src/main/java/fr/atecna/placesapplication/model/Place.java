@@ -1,6 +1,8 @@
 package fr.atecna.placesapplication.model;
 
-public class Place {
+import java.io.Serializable;
+
+public class Place implements Serializable {
     public   String id;
     public double lat;
     public String name;

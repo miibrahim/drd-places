@@ -40,7 +40,8 @@ public class PlacesAdapter extends RecyclerView.Adapter<PlacesAdapter.PlaceViewH
         holder.textViewName.setText(places.get(position).getName());
     }
 
-    public void addPlaces(List<? extends Place> places){
+    public void setPlaces(List<? extends Place> places){
+        this.places.clear();
         this.places.addAll(places);
         notifyDataSetChanged();
     }

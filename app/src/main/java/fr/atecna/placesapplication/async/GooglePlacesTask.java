@@ -11,14 +11,14 @@ import java.util.List;
 
 import fr.atecna.placesapplication.model.GooglePlace;
 
-public class GooglePlacesTask extends BaseAsyncTask<Object, List<GooglePlace>> {
+public class GooglePlacesTask extends BaseAsyncTask<Object, ArrayList<GooglePlace>> {
 
     @Override
-    protected List<GooglePlace> parseResult(String jsonResult) throws JSONException {
+    protected ArrayList<GooglePlace> parseResult(String jsonResult) throws JSONException {
         Log.d(getClass().getSimpleName(), "parseResult");
         JSONObject jsonObject = new JSONObject(jsonResult);
         JSONArray resultsArr = jsonObject.getJSONArray("results");
-        List<GooglePlace> googlePlaces = new ArrayList<>();
+        ArrayList<GooglePlace> googlePlaces = new ArrayList<>();
 
         for (int i = 0; i < resultsArr.length(); i++) {
             JSONObject placeJson = resultsArr.getJSONObject(i);
